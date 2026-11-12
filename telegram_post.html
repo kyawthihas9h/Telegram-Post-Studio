@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TelePost Studio Pro - Telegram Channel Publisher</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        telegram: {
+                            50: '#eef8fc',
+                            100: '#d7eff8',
+                            400: '#38bdf8',
+                            500: '#24A1DE',
+                            600: '#1c82b6',
+                            700: '#14658b',
+                            900: '#0e3d54'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .animate-fade-in { animation: fadeIn 0.25s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans h-full flex flex-col antialiased selection:bg-telegram-500 selection:text-white">
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-telegram-500 flex items-center justify-center text-white shadow-md shadow-telegram-500/20">
+                    <i class="fa-brands fa-telegram text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base sm:text-lg text-slate-900 leading-tight">TelePost Studio Pro</h1>
+                    <p class="text-xs text-slate-500">Telegram Channel Media & Post Publisher</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2.5">
+                <button onclick="fillSampleData()" class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                    <span>Sample Data</span>
+                </button>
+                <button onclick="openSettingsModal()" class="flex items-center space-x-2 px-3.5 py-2 text-xs sm:text-sm font-semibold text-telegram-700 bg-telegram-50 hover:bg-telegram-100 border border-telegram-200/60 rounded-xl transition-all">
+                    <i class="fa-solid fa-robot"></i>
+                    <span id="header-bot-btn-text">Bot Config</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Column: Form Controls (7 Cols) -->
+        <section class="lg:col-span-7 space-y-6">
+            
+            <!-- Main Post Form Card -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center space-x-2">
+                        <i class="fa-solid fa-pen-to-square text-telegram-500"></i>
+                        <span>Post Editor</span>
+                    </h2>
+                    <span id="connection-status-badge" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                        <span class="w-2 h-2 mr-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                        Bot Unconfigured
+                    </span>
+                </div>
+
+                <form id="post-form" onsubmit="event.preventDefault();" class="space-y-4">
+                    <!-- Item / Product Name -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                            Item / Product Name
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-bag-shopping text-xs"></i>
+                            </span>
+                            <input type="text" id="item-name" placeholder="e.g. Wireless Gaming Headset ANC"
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-telegram-500/20 focus:border-telegram-500 outline-none transition-all placeholder:text-slate-400"
+                                oninput="updatePreview()">
+                        </div>
+                    </div>
+
+                    <!-- Media Selection Tabs -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                Media Attachment
+                            </label>
+                            <div class="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+                                <button type="button" id="tab-none" onclick="setMediaType('none')" class="px-3 py-1 rounded-lg text-slate-600">Text Only</button>
+                                <button type="button" id="tab-video" onclick="setMediaType('video')" class="px-3 py-1 rounded-lg bg-white shadow-xs text-telegram-700">Local Video</button>
+                                <button type="button" id="tab-image" onclick="setMediaType('image')" class="px-3 py-1 rounded-lg text-slate-600">Local Image</button>
+                                <button type="button" id="tab-url" onclick="setMediaType('url')" class="px-3 py-1 rounded-lg text-slate-600">Media URL</button>
+                            </div>
+                        </div>
+
+                        <!-- Local Video File Input -->
+                        <div id="video-upload-box" class="space-y-2">
+                            <div class="border-2 border-dashed border-telegram-300 hover:border-telegram-500 bg-telegram-50/40 hover:bg-telegram-50 rounded-2xl p-4 text-center transition-all cursor-pointer relative"
+                                 onclick="document.getElementById('video-file-input').click()">
+                                <input type="file" id="video-file-input" accept="video/mp4,video/webm,video/quicktime,video/mkv" class="hidden" onchange="handleFileSelected(event, 'video')">
+                                <div class="flex flex-col items-center justify-center space-y-1.5">
+                                    <div class="w-10 h-10 rounded-full bg-telegram-100 text-telegram-600 flex items-center justify-center text-lg">
+                                        <i class="fa-solid fa-file-video"></i>
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-800">
+                                        Click to upload MP4 Video <span class="text-telegram-600 underline font-normal">(Direct MP4 supported)</span>
+                                    </p>
+                                    <p class="text-[11px] text-slate-500" id="video-file-status">Max size ~50MB for Telegram Bot API</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Local Image File Input -->
+                        <div id="image-upload-box" class="space-y-2 hidden">
+                            <div class="border-2 border-dashed border-slate-300 hover:border-telegram-500 bg-slate-50 hover:bg-telegram-50/40 rounded-2xl p-4 text-center transition-all cursor-pointer relative"
+                                 onclick="document.getElementById('image-file-input').click()">
+                                <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="handleFileSelected(event, 'image')">
+                                <div class="flex flex-col items-center justify-center space-y-1.5">
+                                    <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-lg">
+                                        <i class="fa-solid fa-file-image"></i>
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-800">Click to upload Local Image File</p>
+                                    <p class="text-[11px] text-slate-500" id="image-file-status">Supports JPG, PNG, WEBP (Max 10MB)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Media URL Input -->
+                        <div id="url-upload-box" class="space-y-2 hidden">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-link text-xs"></i>
+                                </span>
+                                <input type="url" id="media-url-input" placeholder="https://domain.com/video.mp4 or photo.jpg"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-telegram-500/20 focus:border-telegram-500 outline-none transition-all placeholder:text-slate-400"
+                                    oninput="updatePreview()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Caption / Description Textarea -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                Caption / Description
+                            </label>
+                            <div class="flex items-center space-x-1 bg-slate-100 p-0.5 rounded-lg text-xs">
+                                <button type="button" onclick="insertHtmlTag('b')" class="px-2 py-0.5 font-bold hover:bg-white rounded text-slate-700" title="Bold"><b>B</b></button>
+                                <button type="button" onclick="insertHtmlTag('i')" class="px-2 py-0.5 italic hover:bg-white rounded text-slate-700" title="Italic"><i>I</i></button>
+                                <button type="button" onclick="insertHtmlTag('code')" class="px-2 py-0.5 font-mono text-[10px] hover:bg-white rounded text-slate-700" title="Monospace">&lt;/&gt;</button>
+                                <button type="button" onclick="insertLinkTag()" class="px-2 py-0.5 hover:bg-white rounded text-slate-700" title="Hyperlink"><i class="fa-solid fa-link text-[10px]"></i></button>
+                            </div>
+                        </div>
+                        <textarea id="description" rows="4" placeholder="Write caption here. HTML tags (<b>bold</b>, <i>italic</i>, <a href='...'>link</a>) supported..."
+                            class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-telegram-500/20 focus:border-telegram-500 outline-none transition-all placeholder:text-slate-400 resize-y"
+                            oninput="updatePreview()"></textarea>
+                        
+                        <div class="flex items-center justify-between text-[11px] mt-1">
+                            <span id="caption-counter" class="text-slate-500">Length: 0 / 1024 chars</span>
+                            <span class="text-slate-400">Telegram Caption limit is 1024 characters for media.</span>
+                        </div>
+                    </div>
+
+                    <!-- Reaction & Button Builder -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                            Inline Reaction Buttons
+                        </label>
+                        <div id="emoji-list" class="flex flex-wrap gap-2">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Custom Action Button Builder (e.g. Buy Now / Link) -->
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                        <span class="text-xs font-bold text-slate-700 block">Optional Action Button (URL Button)</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input type="text" id="action-btn-text" placeholder="Button Title (e.g. 🛒 Buy Now)"
+                                class="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs outline-none focus:border-telegram-500" oninput="updatePreview()">
+                            <input type="url" id="action-btn-url" placeholder="URL (https://t.me/username)"
+                                class="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs outline-none focus:border-telegram-500" oninput="updatePreview()">
+                        </div>
+                    </div>
+
+                    <!-- Control Actions -->
+                    <div class="pt-2 flex items-center justify-between gap-3">
+                        <button type="button" onclick="resetForm()" class="px-4 py-2 border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl transition-colors">
+                            Clear Form
+                        </button>
+                        <button type="button" onclick="publishToTelegram()" id="publish-btn"
+                            class="flex-1 flex items-center justify-center space-x-2 bg-telegram-500 hover:bg-telegram-600 text-white font-bold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-telegram-500/20 active:scale-[0.99]">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Publish to Telegram Channel</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Diagnostics & Diagnostics Console Box -->
+            <div class="bg-slate-900 text-slate-100 rounded-2xl p-4 space-y-3 font-mono text-xs shadow-md border border-slate-800">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span class="font-bold text-slate-300 flex items-center space-x-2">
+                        <i class="fa-solid fa-terminal text-telegram-400"></i>
+                        <span>API Request Diagnostics Log</span>
+                    </span>
+                    <button onclick="clearLogs()" class="text-[10px] text-slate-400 hover:text-slate-200">Clear Log</button>
+                </div>
+                <div id="diagnostics-log" class="h-32 overflow-y-auto space-y-1.5 text-[11px] pr-2 text-slate-300">
+                    <div class="text-slate-500">// Ready. Logs of Telegram API requests, CORS status & errors will appear here.</div>
+                </div>
+
+                <!-- Fallback Helper Generator (If CORS blocks browser request) -->
+                <div id="cors-fallback-container" class="hidden pt-2 border-t border-slate-800 space-y-2">
+                    <div class="text-amber-400 text-[11px] font-sans font-medium flex items-center justify-between">
+                        <span><i class="fa-solid fa-triangle-exclamation mr-1"></i> Browser CORS Blocked Direct Request?</span>
+                        <button onclick="generateCurlScript()" class="text-xs bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 px-2.5 py-1 rounded-lg">
+                            Get cURL Command
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Live Telegram Preview (5 Cols) -->
+        <section class="lg:col-span-5 space-y-4 lg:sticky lg:top-20">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-mobile-screen text-telegram-500"></i>
+                    <span>Telegram UI Live Preview</span>
+                </h3>
+                <span class="text-[11px] text-slate-400">Client View Simulation</span>
+            </div>
+
+            <!-- Telegram App Window -->
+            <div class="bg-[#eef2f5] rounded-3xl border border-slate-300 overflow-hidden shadow-xl shadow-slate-200">
+                <!-- Telegram App Bar -->
+                <div class="bg-[#517da2] px-4 py-3 flex items-center space-x-3 text-white">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs" id="preview-avatar">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 id="preview-channel-name" class="font-bold text-xs sm:text-sm truncate">My Channel</h4>
+                        <p class="text-[10px] text-white/80">subscribers stream</p>
+                    </div>
+                    <div class="flex items-center space-x-2.5 text-white/80 text-xs">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
+                </div>
+
+                <!-- Chat Canvas -->
+                <div class="p-3 sm:p-4 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] min-h-[420px] max-h-[560px] overflow-y-auto flex flex-col justify-end">
+                    
+                    <!-- Message Card -->
+                    <div class="bg-white rounded-2xl rounded-tl-sm shadow-xs border border-slate-200/80 overflow-hidden max-w-[95%] self-start animate-fade-in">
+                        
+                        <!-- Media Container -->
+                        <div id="preview-media-box" class="w-full bg-slate-900 relative hidden aspect-video max-h-64 flex items-center justify-center overflow-hidden">
+                            <img id="preview-img-el" src="" alt="Preview" class="w-full h-full object-cover hidden">
+                            <video id="preview-video-el" src="" controls class="w-full h-full object-cover hidden"></video>
+                        </div>
+
+                        <!-- Message Body -->
+                        <div class="p-3.5 space-y-2">
+                            <div id="preview-caption-text" class="text-xs text-slate-800 whitespace-pre-wrap leading-relaxed">
+                                <span class="text-slate-400 italic">Your caption will appear here...</span>
+                            </div>
+
+                            <div class="flex items-center justify-end space-x-1 text-[10px] text-slate-400 pt-0.5">
+                                <span id="preview-time">12:00 PM</span>
+                                <i class="fa-solid fa-check-double text-sky-500"></i>
+                            </div>
+                        </div>
+
+                        <!-- Inline Reactions & URL Keyboard -->
+                        <div id="preview-inline-keyboard" class="border-t border-slate-100 bg-slate-50 p-2 flex flex-col gap-1.5">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Input Footer simulation -->
+                <div class="bg-white px-3 py-2 border-t border-slate-200 flex items-center space-x-2 text-slate-400 text-xs">
+                    <i class="fa-regular fa-face-smile"></i>
+                    <span class="text-slate-400 text-[11px] flex-1">Broadcast message...</span>
+                    <i class="fa-solid fa-paperclip"></i>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-bold text-sm text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-key text-telegram-500"></i>
+                    <span>Telegram Credentials</span>
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Bot Token <span class="text-rose-500">*</span></label>
+                    <input type="password" id="modal-bot-token" placeholder="123456789:ABCdefGhIJKlmNo..."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-telegram-500/20 focus:border-telegram-500 outline-none font-mono text-xs">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Channel Username / ID <span class="text-rose-500">*</span></label>
+                    <input type="text" id="modal-channel-id" placeholder="@mychannel or -100123456789"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-telegram-500/20 focus:border-telegram-500 outline-none text-xs">
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-[11px] text-blue-900 space-y-1">
+                    <p class="font-bold"><i class="fa-solid fa-circle-info mr-1"></i> Setup Steps:</p>
+                    <ol class="list-decimal list-inside space-y-0.5 text-blue-800">
+                        <li>Create bot at <strong>@BotFather</strong> on Telegram and copy API Token.</li>
+                        <li>Add your Bot as an <strong>Administrator</strong> in your Channel with <em>Post Messages</em> permission.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="closeSettingsModal()" class="px-3.5 py-1.5 text-slate-600 hover:bg-slate-100 font-semibold text-xs rounded-xl">
+                    Cancel
+                </button>
+                <button type="button" onclick="testAndSaveSettings()" class="px-4 py-2 bg-telegram-500 hover:bg-telegram-600 text-white font-bold text-xs rounded-xl transition-all shadow-xs">
+                    Save & Test Connection
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // Core State
+        const state = {
+            botToken: localStorage.getItem('tg_bot_token') || '',
+            channelId: localStorage.getItem('tg_channel_id') || '',
+            mediaType: 'video', // 'none', 'video', 'image', 'url'
+            selectedFile: null,
+            localBlobUrl: '',
+            availableEmojis: ['👍', '❤️', '🔥', '👏', '😍', '🎉', '🚀'],
+            selectedEmojis: ['👍', '❤️', '🔥']
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderEmojiList();
+            checkBotConfig();
+            updatePreview();
+            
+            // Set preview time
+            const now = new Date();
+            document.getElementById('preview-time').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        });
+
+        // Logger Function
+        function logDiag(message, type = 'info') {
+            const consoleBox = document.getElementById('diagnostics-log');
+            const entry = document.createElement('div');
+            const time = new Date().toLocaleTimeString();
+            
+            let color = 'text-slate-300';
+            if (type === 'error') color = 'text-rose-400 font-bold';
+            if (type === 'success') color = 'text-emerald-400 font-bold';
+            if (type === 'warn') color = 'text-amber-300';
+
+            entry.className = color;
+            entry.innerHTML = `<span class="text-slate-500">[${time}]</span> ${message}`;
+            consoleBox.appendChild(entry);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('diagnostics-log').innerHTML = '';
+        }
+
+        // Toast Helper
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-600 text-white',
+                error: 'bg-rose-600 text-white',
+                info: 'bg-slate-900 text-white'
+            };
+
+            toast.className = `pointer-events-auto flex items-center space-x-2 px-3.5 py-2.5 rounded-xl shadow-xl text-xs font-semibold transition-all transform translate-y-2 opacity-0 animate-fade-in ${colors[type] || colors.info}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 250);
+            }, 3500);
+        }
+
+        // Modal Controls
+        function openSettingsModal() {
+            document.getElementById('modal-bot-token').value = state.botToken;
+            document.getElementById('modal-channel-id').value = state.channelId;
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        async function testAndSaveSettings() {
+            const token = document.getElementById('modal-bot-token').value.trim();
+            const channel = document.getElementById('modal-channel-id').value.trim();
+
+            if (!token || !channel) {
+                showToast('Bot Token နှင့် Channel ID နှစ်ခုလုံး ဖြည့်ပါ', 'error');
+                return;
+            }
+
+            logDiag(`Testing bot token with Telegram API...`);
+
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${token}/getMe`);
+                const data = await res.json();
+
+                if (data.ok) {
+                    state.botToken = token;
+                    state.channelId = channel;
+                    localStorage.setItem('tg_bot_token', token);
+                    localStorage.setItem('tg_channel_id', channel);
+
+                    closeSettingsModal();
+                    checkBotConfig();
+                    showToast(`Bot Connected: @${data.result.username}`, 'success');
+                    logDiag(`Bot identity verified: @${data.result.username}`, 'success');
+                } else {
+                    showToast(`Bot Error: ${data.description}`, 'error');
+                    logDiag(`Telegram API Error: ${data.description}`, 'error');
+                }
+            } catch (err) {
+                logDiag(`CORS or Network Exception: ${err.message}`, 'error');
+                showToast('Browser blocked API call or connection failed.', 'error');
+            }
+        }
+
+        function checkBotConfig() {
+            const badge = document.getElementById('connection-status-badge');
+            const btnText = document.getElementById('header-bot-btn-text');
+
+            if (state.botToken && state.channelId) {
+                badge.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                badge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full"></span> Bot Active`;
+                btnText.textContent = state.channelId;
+                document.getElementById('preview-channel-name').textContent = state.channelId.startsWith('@') ? state.channelId : `@${state.channelId}`;
+            } else {
+                badge.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+                badge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-amber-500 rounded-full animate-pulse"></span> Bot Unconfigured`;
+                btnText.textContent = 'Bot Config';
+            }
+        }
+
+        // Media Type Switching
+        function setMediaType(type) {
+            state.mediaType = type;
+            
+            const btnMap = { none: 'tab-none', video: 'tab-video', image: 'tab-image', url: 'tab-url' };
+            Object.keys(btnMap).forEach(key => {
+                const btn = document.getElementById(btnMap[key]);
+                if (key === type) {
+                    btn.className = 'px-3 py-1 rounded-lg bg-white shadow-xs text-telegram-700 font-bold';
+                } else {
+                    btn.className = 'px-3 py-1 rounded-lg text-slate-600 font-medium';
+                }
+            });
+
+            document.getElementById('video-upload-box').classList.toggle('hidden', type !== 'video');
+            document.getElementById('image-upload-box').classList.toggle('hidden', type !== 'image');
+            document.getElementById('url-upload-box').classList.toggle('hidden', type !== 'url');
+
+            updatePreview();
+        }
+
+        // Handle File Selection
+        function handleFileSelected(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (state.localBlobUrl) {
+                URL.revokeObjectURL(state.localBlobUrl);
+            }
+
+            state.selectedFile = file;
+            state.localBlobUrl = URL.createObjectURL(file);
+
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+
+            if (type === 'video') {
+                document.getElementById('video-file-status').innerHTML = `<span class="font-bold text-emerald-600">Selected: ${file.name} (${sizeMb} MB)</span>`;
+                logDiag(`Local video file attached: ${file.name} (${sizeMb} MB)`);
+            } else {
+                document.getElementById('image-file-status').innerHTML = `<span class="font-bold text-emerald-600">Selected: ${file.name} (${sizeMb} MB)</span>`;
+                logDiag(`Local image file attached: ${file.name} (${sizeMb} MB)`);
+            }
+
+            updatePreview();
+        }
+
+        // Emoji Builder
+        function renderEmojiList() {
+            const container = document.getElementById('emoji-list');
+            container.innerHTML = '';
+
+            state.availableEmojis.forEach(emoji => {
+                const isSelected = state.selectedEmojis.includes(emoji);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => {
+                    if (isSelected) {
+                        state.selectedEmojis = state.selectedEmojis.filter(e => e !== emoji);
+                    } else {
+                        state.selectedEmojis.push(emoji);
+                    }
+                    renderEmojiList();
+                    updatePreview();
+                };
+                btn.className = `px-2.5 py-1 rounded-xl text-xs font-bold border transition-all ${
+                    isSelected ? 'bg-telegram-50 border-telegram-300 text-telegram-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                }`;
+                btn.innerHTML = `${emoji} ${isSelected ? '✓' : '+'}`;
+                container.appendChild(btn);
+            });
+        }
+
+        // HTML Text Formatting
+        function insertHtmlTag(tag) {
+            const textarea = document.getElementById('description');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selected = textarea.value.substring(start, end);
+            const replacement = `<${tag}>${selected || 'text'}</${tag}>`;
+            textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+            textarea.focus();
+            updatePreview();
+        }
+
+        function insertLinkTag() {
+            const textarea = document.getElementById('description');
+            const url = prompt("Enter URL:", "https://");
+            if (!url) return;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selected = textarea.value.substring(start, end);
+            const replacement = `<a href="${url}">${selected || 'link text'}</a>`;
+            textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+            textarea.focus();
+            updatePreview();
+        }
+
+        // Live Preview Updater
+        function updatePreview() {
+            const itemName = document.getElementById('item-name').value.trim();
+            const desc = document.getElementById('description').value;
+
+            // Character counter
+            let fullCaption = '';
+            if (itemName) fullCaption += `<b>${escapeHtml(itemName)}</b>\n\n`;
+            fullCaption += desc;
+
+            const counterEl = document.getElementById('caption-counter');
+            counterEl.textContent = `Length: ${fullCaption.length} / 1024 chars`;
+            if (fullCaption.length > 1024) {
+                counterEl.className = 'text-rose-600 font-bold';
+            } else {
+                counterEl.className = 'text-slate-500';
+            }
+
+            // Preview Text
+            const previewTextEl = document.getElementById('preview-caption-text');
+            if (fullCaption) {
+                previewTextEl.innerHTML = fullCaption.replace(/\n/g, '<br>');
+            } else {
+                previewTextEl.innerHTML = '<span class="text-slate-400 italic">Your caption will appear here...</span>';
+            }
+
+            // Preview Media
+            const mediaBox = document.getElementById('preview-media-box');
+            const imgEl = document.getElementById('preview-img-el');
+            const videoEl = document.getElementById('preview-video-el');
+
+            if (state.mediaType === 'video' && state.selectedFile) {
+                mediaBox.classList.remove('hidden');
+                videoEl.src = state.localBlobUrl;
+                videoEl.classList.remove('hidden');
+                imgEl.classList.add('hidden');
+            } else if (state.mediaType === 'image' && state.selectedFile) {
+                mediaBox.classList.remove('hidden');
+                imgEl.src = state.localBlobUrl;
+                imgEl.classList.remove('hidden');
+                videoEl.classList.add('hidden');
+            } else if (state.mediaType === 'url' && document.getElementById('media-url-input').value.trim()) {
+                const url = document.getElementById('media-url-input').value.trim();
+                mediaBox.classList.remove('hidden');
+                if (url.match(/\.(mp4|webm|mov)(\?.*)?$/i)) {
+                    videoEl.src = url;
+                    videoEl.classList.remove('hidden');
+                    imgEl.classList.add('hidden');
+                } else {
+                    imgEl.src = url;
+                    imgEl.classList.remove('hidden');
+                    videoEl.classList.add('hidden');
+                }
+            } else {
+                mediaBox.classList.add('hidden');
+            }
+
+            // Inline Keyboard Preview
+            const keyboardBox = document.getElementById('preview-inline-keyboard');
+            keyboardBox.innerHTML = '';
+
+            // Reactions Row
+            if (state.selectedEmojis.length > 0) {
+                const reactRow = document.createElement('div');
+                reactRow.className = 'flex flex-wrap gap-1 justify-center';
+                state.selectedEmojis.forEach(emoji => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs';
+                    btn.textContent = `${emoji} 0`;
+                    reactRow.appendChild(btn);
+                });
+                keyboardBox.appendChild(reactRow);
+            }
+
+            // URL Action Button Row
+            const actionText = document.getElementById('action-btn-text').value.trim();
+            if (actionText) {
+                const actionRow = document.createElement('div');
+                actionRow.className = 'w-full';
+                const actionBtn = document.createElement('button');
+                actionBtn.type = 'button';
+                actionBtn.className = 'w-full py-1.5 bg-telegram-50 hover:bg-telegram-100 text-telegram-700 border border-telegram-200 rounded-xl text-xs font-bold text-center';
+                actionBtn.textContent = actionText;
+                actionRow.appendChild(actionBtn);
+                keyboardBox.appendChild(actionRow);
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function fillSampleData() {
+            document.getElementById('item-name').value = "🔥 Exclusive Smart Watch Series 9";
+            document.getElementById('description').value = "Premium OLED display with real-time heart rate sensor.\n\n• <b>Battery Life:</b> 7 Days\n• <b>Water Resistance:</b> IP68\n\nOrder now with discount!";
+            document.getElementById('action-btn-text').value = "🛒 Order via Admin";
+            document.getElementById('action-btn-url').value = "https://t.me/telegram";
+            state.selectedEmojis = ['👍', '❤️', '🔥'];
+            renderEmojiList();
+            updatePreview();
+            showToast('Sample data populated', 'info');
+        }
+
+        function resetForm() {
+            document.getElementById('post-form').reset();
+            state.selectedFile = null;
+            if (state.localBlobUrl) URL.revokeObjectURL(state.localBlobUrl);
+            state.localBlobUrl = '';
+            document.getElementById('video-file-status').textContent = 'Max size ~50MB for Telegram Bot API';
+            document.getElementById('image-file-status').textContent = 'Supports JPG, PNG, WEBP (Max 10MB)';
+            setMediaType('video');
+            updatePreview();
+            showToast('Form cleared', 'info');
+        }
+
+        // PUBLISH TO TELEGRAM FUNCTION
+        async function publishToTelegram() {
+            if (!state.botToken || !state.channelId) {
+                showToast('Bot Credentials ဖြည့်သွင်းပါ', 'error');
+                openSettingsModal();
+                return;
+            }
+
+            const itemName = document.getElementById('item-name').value.trim();
+            const desc = document.getElementById('description').value;
+
+            let captionText = '';
+            if (itemName) captionText += `<b>${escapeHtml(itemName)}</b>\n\n`;
+            captionText += desc;
+
+            if (captionText.length > 1024 && state.mediaType !== 'none') {
+                showToast('Telegram media caption max length is 1024 characters!', 'error');
+                logDiag(`Caption too long: ${captionText.length}/1024 chars`, 'error');
+                return;
+            }
+
+            const targetChat = state.channelId.startsWith('@') || state.channelId.startsWith('-') ? state.channelId : `@${state.channelId}`;
+
+            // Build Inline Keyboard
+            const keyboardRows = [];
+            if (state.selectedEmojis.length > 0) {
+                keyboardRows.push(state.selectedEmojis.map(e => ({ text: `${e} 0`, callback_data: `react_${e}` })));
+            }
+
+            const actionText = document.getElementById('action-btn-text').value.trim();
+            const actionUrl = document.getElementById('action-btn-url').value.trim();
+            if (actionText && actionUrl) {
+                keyboardRows.push([{ text: actionText, url: actionUrl }]);
+            }
+
+            const replyMarkup = JSON.stringify({ inline_keyboard: keyboardRows });
+
+            const publishBtn = document.getElementById('publish-btn');
+            publishBtn.disabled = true;
+            publishBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Sending API Payload...</span>`;
+
+            logDiag(`Initiating post send to chat: ${targetChat}`);
+
+            try {
+                let url, response;
+
+                // Case 1: Send Local Video File
+                if (state.mediaType === 'video' && state.selectedFile) {
+                    url = `https://api.telegram.org/bot${state.botToken}/sendVideo`;
+                    const formData = new FormData();
+                    formData.append('chat_id', targetChat);
+                    formData.append('video', state.selectedFile);
+                    formData.append('caption', captionText);
+                    formData.append('parse_mode', 'HTML');
+                    if (keyboardRows.length > 0) formData.append('reply_markup', replyMarkup);
+
+                    logDiag(`Executing POST to sendVideo with multipart/form-data (${state.selectedFile.name})...`);
+                    response = await fetch(url, { method: 'POST', body: formData });
+                }
+                // Case 2: Send Local Image File
+                else if (state.mediaType === 'image' && state.selectedFile) {
+                    url = `https://api.telegram.org/bot${state.botToken}/sendPhoto`;
+                    const formData = new FormData();
+                    formData.append('chat_id', targetChat);
+                    formData.append('photo', state.selectedFile);
+                    formData.append('caption', captionText);
+                    formData.append('parse_mode', 'HTML');
+                    if (keyboardRows.length > 0) formData.append('reply_markup', replyMarkup);
+
+                    logDiag(`Executing POST to sendPhoto with multipart/form-data (${state.selectedFile.name})...`);
+                    response = await fetch(url, { method: 'POST', body: formData });
+                }
+                // Case 3: Send URL Media
+                else if (state.mediaType === 'url' && document.getElementById('media-url-input').value.trim()) {
+                    const mediaUrl = document.getElementById('media-url-input').value.trim();
+                    const isVideo = mediaUrl.match(/\.(mp4|webm|mov)(\?.*)?$/i);
+                    url = `https://api.telegram.org/bot${state.botToken}/${isVideo ? 'sendVideo' : 'sendPhoto'}`;
+
+                    const payload = {
+                        chat_id: targetChat,
+                        [isVideo ? 'video' : 'photo']: mediaUrl,
+                        caption: captionText,
+                        parse_mode: 'HTML'
+                    };
+                    if (keyboardRows.length > 0) payload.reply_markup = JSON.parse(replyMarkup);
+
+                    logDiag(`Executing POST to ${isVideo ? 'sendVideo' : 'sendPhoto'} with Media URL...`);
+                    response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+                // Case 4: Text Only
+                else {
+                    url = `https://api.telegram.org/bot${state.botToken}/sendMessage`;
+                    const payload = {
+                        chat_id: targetChat,
+                        text: captionText,
+                        parse_mode: 'HTML'
+                    };
+                    if (keyboardRows.length > 0) payload.reply_markup = JSON.parse(replyMarkup);
+
+                    logDiag(`Executing POST to sendMessage...`);
+                    response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                const resData = await response.json();
+
+                if (resData.ok) {
+                    logDiag(`Post successfully published to Telegram! (Msg ID: ${resData.result.message_id})`, 'success');
+                    showToast('🎉 Channel သို့ Post အောင်မြင်စွာ တင်ပြီးပါပြီ!', 'success');
+                    document.getElementById('cors-fallback-container').classList.add('hidden');
+                } else {
+                    logDiag(`Telegram API Error: ${resData.description} (Error Code: ${resData.error_code})`, 'error');
+                    showToast(`API Error: ${resData.description}`, 'error');
+                }
+
+            } catch (err) {
+                console.error(err);
+                logDiag(`Network / CORS Error: ${err.message}`, 'error');
+                logDiag(`Notice: Browsers may block direct file upload to Telegram API due to CORS policies.`, 'warn');
+                showToast('Browser CORS blocked upload or Network failed', 'error');
+                document.getElementById('cors-fallback-container').classList.remove('hidden');
+            } finally {
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i><span>Publish to Telegram Channel</span>`;
+            }
+        }
+
+        function generateCurlScript() {
+            const targetChat = state.channelId || '@mychannel';
+            const itemName = document.getElementById('item-name').value.trim();
+            const desc = document.getElementById('description').value;
+            let captionText = (itemName ? `${itemName}\n\n` : '') + desc;
+
+            let curlCmd = `curl -X POST "https://api.telegram.org/bot${state.botToken || 'BOT_TOKEN'}/sendVideo" \\\n`;
+            curlCmd += `  -F "chat_id=${targetChat}" \\\n`;
+            curlCmd += `  -F "video=@your_local_video.mp4" \\\n`;
+            curlCmd += `  -F "caption=${captionText.replace(/"/g, '\\"')}" \\\n`;
+            curlCmd += `  -F "parse_mode=HTML"`;
+
+            navigator.clipboard.writeText(curlCmd);
+            showToast('cURL script copied to clipboard!', 'info');
+            logDiag(`cURL Command generated:\n${curlCmd}`);
+        }
+    </script>
+</body>
+</html>
