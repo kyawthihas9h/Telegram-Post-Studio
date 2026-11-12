@@ -108,15 +108,15 @@
 
                     <!-- Media Selection Tabs -->
                     <div>
-                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center justify-between mb-2">
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
                                 Media Attachment
                             </label>
                             <div class="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-                                <button type="button" id="tab-none" onclick="setMediaType('none')" class="px-2.5 py-1 rounded-lg text-slate-600">Text Only</button>
-                                <button type="button" id="tab-video" onclick="setMediaType('video')" class="px-2.5 py-1 rounded-lg bg-white shadow-xs text-telegram-700">Local Video</button>
-                                <button type="button" id="tab-image" onclick="setMediaType('image')" class="px-2.5 py-1 rounded-lg text-slate-600">Local Image</button>
-                                <button type="button" id="tab-url" onclick="setMediaType('url')" class="px-2.5 py-1 rounded-lg text-slate-600">Media URL</button>
+                                <button type="button" id="tab-none" onclick="setMediaType('none')" class="px-3 py-1 rounded-lg text-slate-600">Text Only</button>
+                                <button type="button" id="tab-video" onclick="setMediaType('video')" class="px-3 py-1 rounded-lg bg-white shadow-xs text-telegram-700">Local Video</button>
+                                <button type="button" id="tab-image" onclick="setMediaType('image')" class="px-3 py-1 rounded-lg text-slate-600">Local Image</button>
+                                <button type="button" id="tab-url" onclick="setMediaType('url')" class="px-3 py-1 rounded-lg text-slate-600">Media URL</button>
                             </div>
                         </div>
 
@@ -175,7 +175,7 @@
                                 <button type="button" onclick="insertHtmlTag('b')" class="px-2 py-0.5 font-bold hover:bg-white rounded text-slate-700" title="Bold"><b>B</b></button>
                                 <button type="button" onclick="insertHtmlTag('i')" class="px-2 py-0.5 italic hover:bg-white rounded text-slate-700" title="Italic"><i>I</i></button>
                                 <button type="button" onclick="insertHtmlTag('code')" class="px-2 py-0.5 font-mono text-[10px] hover:bg-white rounded text-slate-700" title="Monospace">&lt;/&gt;</button>
-                                <button type="button" onclick="openLinkModal()" class="px-2 py-0.5 hover:bg-white rounded text-slate-700" title="Hyperlink"><i class="fa-solid fa-link text-[10px]"></i></button>
+                                <button type="button" onclick="insertLinkTag()" class="px-2 py-0.5 hover:bg-white rounded text-slate-700" title="Hyperlink"><i class="fa-solid fa-link text-[10px]"></i></button>
                             </div>
                         </div>
                         <textarea id="description" rows="4" placeholder="Write caption here. HTML tags (<b>bold</b>, <i>italic</i>, <a href='...'>link</a>) supported..."
@@ -223,7 +223,7 @@
                 </form>
             </div>
 
-            <!-- Diagnostics Console Box -->
+            <!-- Diagnostics & Diagnostics Console Box -->
             <div class="bg-slate-900 text-slate-100 rounded-2xl p-4 space-y-3 font-mono text-xs shadow-md border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                     <span class="font-bold text-slate-300 flex items-center space-x-2">
@@ -238,16 +238,11 @@
 
                 <!-- Fallback Helper Generator (If CORS blocks browser request) -->
                 <div id="cors-fallback-container" class="hidden pt-2 border-t border-slate-800 space-y-2">
-                    <div class="text-amber-400 text-[11px] font-sans font-medium flex flex-wrap items-center justify-between gap-2">
+                    <div class="text-amber-400 text-[11px] font-sans font-medium flex items-center justify-between">
                         <span><i class="fa-solid fa-triangle-exclamation mr-1"></i> Browser CORS Blocked Direct Request?</span>
-                        <div class="flex gap-2">
-                            <button onclick="enableCorsProxyAndRetry()" class="text-xs bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 px-2.5 py-1 rounded-lg">
-                                Enable CORS Proxy & Retry
-                            </button>
-                            <button onclick="generateCurlScript()" class="text-xs bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 px-2.5 py-1 rounded-lg">
-                                Copy cURL
-                            </button>
-                        </div>
+                        <button onclick="generateCurlScript()" class="text-xs bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 px-2.5 py-1 rounded-lg">
+                            Get cURL Command
+                        </button>
                     </div>
                 </div>
             </div>
@@ -330,7 +325,7 @@
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <h3 class="font-bold text-sm text-slate-900 flex items-center space-x-2">
                     <i class="fa-solid fa-key text-telegram-500"></i>
-                    <span>Telegram Credentials & Hosting Settings</span>
+                    <span>Telegram Credentials</span>
                 </h3>
                 <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600 p-1">
                     <i class="fa-solid fa-xmark text-base"></i>
@@ -350,20 +345,11 @@
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-telegram-500/20 focus:border-telegram-500 outline-none text-xs">
                 </div>
 
-                <!-- CORS Proxy Option for Vercel Hosting -->
-                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start space-x-2.5">
-                    <input type="checkbox" id="modal-use-proxy" class="mt-0.5 rounded text-telegram-500 focus:ring-telegram-500">
-                    <div>
-                        <label for="modal-use-proxy" class="font-bold text-slate-800 block cursor-pointer">Use CORS Proxy (Recommended on Vercel)</label>
-                        <p class="text-[11px] text-slate-500">Routes requests via corsproxy.io if your browser or network blocks direct Telegram API uploads.</p>
-                    </div>
-                </div>
-
                 <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-[11px] text-blue-900 space-y-1">
-                    <p class="font-bold"><i class="fa-solid fa-circle-info mr-1"></i> Vercel Hosting Checklist:</p>
+                    <p class="font-bold"><i class="fa-solid fa-circle-info mr-1"></i> Setup Steps:</p>
                     <ol class="list-decimal list-inside space-y-0.5 text-blue-800">
-                        <li>Rename this file to <strong>index.html</strong> before deploying to Vercel.</li>
-                        <li>Add your Bot as an <strong>Admin</strong> in your Telegram Channel with <em>Post Messages</em> enabled.</li>
+                        <li>Create bot at <strong>@BotFather</strong> on Telegram and copy API Token.</li>
+                        <li>Add your Bot as an <strong>Administrator</strong> in your Channel with <em>Post Messages</em> permission.</li>
                     </ol>
                 </div>
             </div>
@@ -379,34 +365,12 @@
         </div>
     </div>
 
-    <!-- Custom Hyperlink Modal (Replaces blocked prompt()) -->
-    <div id="link-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden animate-fade-in">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3 border border-slate-100">
-            <h3 class="font-bold text-sm text-slate-900">Insert Hyperlink</h3>
-            <div class="space-y-2 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Link Text</label>
-                    <input type="text" id="link-modal-text" placeholder="Click here" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-telegram-500">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Target URL</label>
-                    <input type="url" id="link-modal-url" placeholder="https://example.com" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-telegram-500">
-                </div>
-            </div>
-            <div class="flex justify-end space-x-2 pt-2">
-                <button type="button" onclick="closeLinkModal()" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
-                <button type="button" onclick="confirmInsertLink()" class="px-4 py-1.5 text-xs font-bold bg-telegram-500 text-white rounded-xl hover:bg-telegram-600">Insert</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Application Script -->
     <script>
-        // Core State (In-memory with safe session fallback)
+        // Core State
         const state = {
-            botToken: '',
-            channelId: '',
-            useProxy: false,
+            botToken: localStorage.getItem('tg_bot_token') || '',
+            channelId: localStorage.getItem('tg_channel_id') || '',
             mediaType: 'video', // 'none', 'video', 'image', 'url'
             selectedFile: null,
             localBlobUrl: '',
@@ -414,17 +378,12 @@
             selectedEmojis: ['👍', '❤️', '🔥']
         };
 
-        // Helper to build Telegram API endpoint with optional CORS proxy
-        function getApiUrl(method) {
-            const base = `https://api.telegram.org/bot${state.botToken}/${method}`;
-            return state.useProxy ? `https://corsproxy.io/?${encodeURIComponent(base)}` : base;
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
             renderEmojiList();
             checkBotConfig();
             updatePreview();
             
+            // Set preview time
             const now = new Date();
             document.getElementById('preview-time').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         });
@@ -474,7 +433,6 @@
         function openSettingsModal() {
             document.getElementById('modal-bot-token').value = state.botToken;
             document.getElementById('modal-channel-id').value = state.channelId;
-            document.getElementById('modal-use-proxy').checked = state.useProxy;
             document.getElementById('settings-modal').classList.remove('hidden');
         }
 
@@ -485,24 +443,24 @@
         async function testAndSaveSettings() {
             const token = document.getElementById('modal-bot-token').value.trim();
             const channel = document.getElementById('modal-channel-id').value.trim();
-            const useProxy = document.getElementById('modal-use-proxy').checked;
 
             if (!token || !channel) {
                 showToast('Bot Token နှင့် Channel ID နှစ်ခုလုံး ဖြည့်ပါ', 'error');
                 return;
             }
 
-            state.botToken = token;
-            state.channelId = channel;
-            state.useProxy = useProxy;
-
-            logDiag(`Testing bot token with Telegram API ${useProxy ? '(via CORS Proxy)' : ''}...`);
+            logDiag(`Testing bot token with Telegram API...`);
 
             try {
-                const res = await fetch(getApiUrl('getMe'));
+                const res = await fetch(`https://api.telegram.org/bot${token}/getMe`);
                 const data = await res.json();
 
                 if (data.ok) {
+                    state.botToken = token;
+                    state.channelId = channel;
+                    localStorage.setItem('tg_bot_token', token);
+                    localStorage.setItem('tg_channel_id', channel);
+
                     closeSettingsModal();
                     checkBotConfig();
                     showToast(`Bot Connected: @${data.result.username}`, 'success');
@@ -513,9 +471,6 @@
                 }
             } catch (err) {
                 logDiag(`CORS or Network Exception: ${err.message}`, 'error');
-                if (!state.useProxy) {
-                    logDiag(`Tip: Try enabling "Use CORS Proxy" in Bot Config.`, 'warn');
-                }
                 showToast('Browser blocked API call or connection failed.', 'error');
             }
         }
@@ -544,9 +499,9 @@
             Object.keys(btnMap).forEach(key => {
                 const btn = document.getElementById(btnMap[key]);
                 if (key === type) {
-                    btn.className = 'px-2.5 py-1 rounded-lg bg-white shadow-xs text-telegram-700 font-bold';
+                    btn.className = 'px-3 py-1 rounded-lg bg-white shadow-xs text-telegram-700 font-bold';
                 } else {
-                    btn.className = 'px-2.5 py-1 rounded-lg text-slate-600 font-medium';
+                    btn.className = 'px-3 py-1 rounded-lg text-slate-600 font-medium';
                 }
             });
 
@@ -620,32 +575,15 @@
             updatePreview();
         }
 
-        // Custom Link Modal Handlers (No native prompt())
-        function openLinkModal() {
+        function insertLinkTag() {
             const textarea = document.getElementById('description');
-            const selected = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
-            document.getElementById('link-modal-text').value = selected || '';
-            document.getElementById('link-modal-url').value = 'https://';
-            document.getElementById('link-modal').classList.remove('hidden');
-        }
-
-        function closeLinkModal() {
-            document.getElementById('link-modal').classList.add('hidden');
-        }
-
-        function confirmInsertLink() {
-            const text = document.getElementById('link-modal-text').value.trim() || 'link';
-            const url = document.getElementById('link-modal-url').value.trim();
-            if (!url) {
-                showToast('Please enter a valid URL', 'error');
-                return;
-            }
-            const textarea = document.getElementById('description');
+            const url = prompt("Enter URL:", "https://");
+            if (!url) return;
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
-            const replacement = `<a href="${url}">${text}</a>`;
+            const selected = textarea.value.substring(start, end);
+            const replacement = `<a href="${url}">${selected || 'link text'}</a>`;
             textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
-            closeLinkModal();
             textarea.focus();
             updatePreview();
         }
@@ -655,6 +593,7 @@
             const itemName = document.getElementById('item-name').value.trim();
             const desc = document.getElementById('description').value;
 
+            // Character counter
             let fullCaption = '';
             if (itemName) fullCaption += `<b>${escapeHtml(itemName)}</b>\n\n`;
             fullCaption += desc;
@@ -667,6 +606,7 @@
                 counterEl.className = 'text-slate-500';
             }
 
+            // Preview Text
             const previewTextEl = document.getElementById('preview-caption-text');
             if (fullCaption) {
                 previewTextEl.innerHTML = fullCaption.replace(/\n/g, '<br>');
@@ -674,6 +614,7 @@
                 previewTextEl.innerHTML = '<span class="text-slate-400 italic">Your caption will appear here...</span>';
             }
 
+            // Preview Media
             const mediaBox = document.getElementById('preview-media-box');
             const imgEl = document.getElementById('preview-img-el');
             const videoEl = document.getElementById('preview-video-el');
@@ -704,9 +645,11 @@
                 mediaBox.classList.add('hidden');
             }
 
+            // Inline Keyboard Preview
             const keyboardBox = document.getElementById('preview-inline-keyboard');
             keyboardBox.innerHTML = '';
 
+            // Reactions Row
             if (state.selectedEmojis.length > 0) {
                 const reactRow = document.createElement('div');
                 reactRow.className = 'flex flex-wrap gap-1 justify-center';
@@ -720,6 +663,7 @@
                 keyboardBox.appendChild(reactRow);
             }
 
+            // URL Action Button Row
             const actionText = document.getElementById('action-btn-text').value.trim();
             if (actionText) {
                 const actionRow = document.createElement('div');
@@ -760,12 +704,6 @@
             showToast('Form cleared', 'info');
         }
 
-        function enableCorsProxyAndRetry() {
-            state.useProxy = true;
-            logDiag('Enabled CORS Proxy mode. Retrying publish...', 'warn');
-            publishToTelegram();
-        }
-
         // PUBLISH TO TELEGRAM FUNCTION
         async function publishToTelegram() {
             if (!state.botToken || !state.channelId) {
@@ -780,11 +718,6 @@
             let captionText = '';
             if (itemName) captionText += `<b>${escapeHtml(itemName)}</b>\n\n`;
             captionText += desc;
-
-            if (!captionText.trim() && state.mediaType === 'none') {
-                showToast('Please enter a caption or attach media!', 'error');
-                return;
-            }
 
             if (captionText.length > 1024 && state.mediaType !== 'none') {
                 showToast('Telegram media caption max length is 1024 characters!', 'error');
@@ -819,7 +752,7 @@
 
                 // Case 1: Send Local Video File
                 if (state.mediaType === 'video' && state.selectedFile) {
-                    url = getApiUrl('sendVideo');
+                    url = `https://api.telegram.org/bot${state.botToken}/sendVideo`;
                     const formData = new FormData();
                     formData.append('chat_id', targetChat);
                     formData.append('video', state.selectedFile);
@@ -827,12 +760,12 @@
                     formData.append('parse_mode', 'HTML');
                     if (keyboardRows.length > 0) formData.append('reply_markup', replyMarkup);
 
-                    logDiag(`Executing POST to sendVideo (${state.selectedFile.name})...`);
+                    logDiag(`Executing POST to sendVideo with multipart/form-data (${state.selectedFile.name})...`);
                     response = await fetch(url, { method: 'POST', body: formData });
                 }
                 // Case 2: Send Local Image File
                 else if (state.mediaType === 'image' && state.selectedFile) {
-                    url = getApiUrl('sendPhoto');
+                    url = `https://api.telegram.org/bot${state.botToken}/sendPhoto`;
                     const formData = new FormData();
                     formData.append('chat_id', targetChat);
                     formData.append('photo', state.selectedFile);
@@ -840,14 +773,14 @@
                     formData.append('parse_mode', 'HTML');
                     if (keyboardRows.length > 0) formData.append('reply_markup', replyMarkup);
 
-                    logDiag(`Executing POST to sendPhoto (${state.selectedFile.name})...`);
+                    logDiag(`Executing POST to sendPhoto with multipart/form-data (${state.selectedFile.name})...`);
                     response = await fetch(url, { method: 'POST', body: formData });
                 }
                 // Case 3: Send URL Media
                 else if (state.mediaType === 'url' && document.getElementById('media-url-input').value.trim()) {
                     const mediaUrl = document.getElementById('media-url-input').value.trim();
                     const isVideo = mediaUrl.match(/\.(mp4|webm|mov)(\?.*)?$/i);
-                    url = getApiUrl(isVideo ? 'sendVideo' : 'sendPhoto');
+                    url = `https://api.telegram.org/bot${state.botToken}/${isVideo ? 'sendVideo' : 'sendPhoto'}`;
 
                     const payload = {
                         chat_id: targetChat,
@@ -866,7 +799,7 @@
                 }
                 // Case 4: Text Only
                 else {
-                    url = getApiUrl('sendMessage');
+                    url = `https://api.telegram.org/bot${state.botToken}/sendMessage`;
                     const payload = {
                         chat_id: targetChat,
                         text: captionText,
@@ -917,15 +850,9 @@
             curlCmd += `  -F "caption=${captionText.replace(/"/g, '\\"')}" \\\n`;
             curlCmd += `  -F "parse_mode=HTML"`;
 
-            const textArea = document.createElement('textarea');
-            textArea.value = curlCmd;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-
+            navigator.clipboard.writeText(curlCmd);
             showToast('cURL script copied to clipboard!', 'info');
-            logDiag(`cURL Command generated & copied.`);
+            logDiag(`cURL Command generated:\n${curlCmd}`);
         }
     </script>
 </body>
